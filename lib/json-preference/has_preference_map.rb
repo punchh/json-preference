@@ -4,7 +4,7 @@ module JsonPreference
 
     included do
       class_attribute :_preferences_attribute
-      self._preferences_attribute = :preferences
+      self._preferences_attribute = :json_preferences
       class_attribute :_preference_map
       self._preference_map = JsonPreference::Preferenzer.new
     end
