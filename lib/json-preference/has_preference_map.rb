@@ -4,13 +4,14 @@ module JsonPreference
 
     included do
       class_attribute :_preferences_attribute
+      class_attribute :_old_preferences_attribute
+      self._old_preferences_attribute = :preferences # TODO: This is a migration. Please remove it when we move to json-preferences entirely
       self._preferences_attribute = :json_preferences
       class_attribute :_preference_map
       self._preference_map = JsonPreference::Preferenzer.new
     end
 
     module ClassMethods
-
       def preference_groups
         _preference_map.preference_groups
       end
@@ -32,23 +33,20 @@ module JsonPreference
       private
 
       def build_preference_definitions
-        serialize self._preferences_attribute, JSON
-
         _preference_map.all_preference_definitions.each do |preference|
-
-          key = preference.name
+          key = preference.name.to_s
           define_method("#{key}=") do |value|
-            write_preference_attribute(self.class._preferences_attribute,key,self.class.preference_definition(key).value(value))
+            write_preference_attribute(self.class._preferences_attribute, key, self.class.preference_definition(key).value(value))
           end
 
           define_method(key) do
-            value = read_preference_attribute(self.class._preferences_attribute,key)
+            value = read_preference_attribute(self.class._preferences_attribute, key)
             self.class.preference_definition(key).value(value)
           end
 
           if preference.boolean?
             define_method("#{key}?") do
-              value = read_preference_attribute(self.class._preferences_attribute,key)
+              value = read_preference_attribute(self.class._preferences_attribute, key)
               self.class.preference_definition(key).value(value)
             end
           end
@@ -60,15 +58,28 @@ module JsonPreference
     protected
 
     def read_preference_attribute(store_attribute, key)
-      attribute = send(store_attribute)
-      attribute[key.to_sym]
+      attribute = send(store_attribute) || {}
+
+      # TODO: This is a migration. Please remove it when we move to json-preferences entirely
+      if attribute.empty?
+        old_attribute = YAML::load(send(self._old_preferences_attribute))
+
+        old_attribute.each do |key, value|
+          attribute[key] = value
+        end
+
+        update_column(store_attribute, attribute)
+      end
+
+      attribute[key]
     end
 
     def write_preference_attribute(store_attribute, key, value)
-      attribute = send(store_attribute)
-      if value != attribute[key.to_sym]
+      attribute = send(store_attribute) || {}
+
+      if value != attribute[key]
         send :"#{store_attribute}_will_change!"
-        attribute[key.to_sym] = value
+        attribute[key] = value
       end
     end
 
