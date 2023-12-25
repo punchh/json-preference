@@ -58,13 +58,22 @@ module JsonPreference
     protected
 
     def read_preference_attribute(store_attribute, key)
-      attribute = send(store_attribute) || {}
+      attribute = send(store_attribute)
+
+      if attribute.nil?
+        send :"#{store_attribute}=", {}
+        attribute = send(store_attribute)
+      end
 
       # TODO: This is a migration. Please remove it when we move to json-preferences entirely
       if attribute.empty?
-        old_attribute = YAML::load(send(self._old_preferences_attribute))
+        old_attribute = send(self._old_preferences_attribute)
 
-        old_attribute.each do |key, value|
+        return nil if old_attribute.nil?
+
+        parsed_old_attribute = YAML::load(old_attribute)
+
+        parsed_old_attribute.each do |key, value|
           attribute[key] = value
         end
 
@@ -75,7 +84,12 @@ module JsonPreference
     end
 
     def write_preference_attribute(store_attribute, key, value)
-      attribute = send(store_attribute) || {}
+      attribute = send(store_attribute)
+
+      if attribute.nil?
+        send :"#{store_attribute}=", {}
+        attribute = send(store_attribute)
+      end
 
       if value != attribute[key]
         send :"#{store_attribute}_will_change!"
