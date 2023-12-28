@@ -4,9 +4,7 @@ module JsonPreference
 
     included do
       class_attribute :_preferences_attribute
-      class_attribute :_old_preferences_attribute
-      self._old_preferences_attribute = :preferences # TODO: This is a migration. Please remove it when we move to json-preferences entirely
-      self._preferences_attribute = :json_preferences
+      self._preferences_attribute = :preferences
       class_attribute :_preference_map
       self._preference_map = JsonPreference::Preferenzer.new
     end
@@ -33,6 +31,8 @@ module JsonPreference
       private
 
       def build_preference_definitions
+        serialize :preferences, JsonPreference::HashSerializer
+
         _preference_map.all_preference_definitions.each do |preference|
           key = preference.name.to_s
           define_method("#{key}=") do |value|
@@ -63,21 +63,6 @@ module JsonPreference
       if attribute.nil?
         send :"#{store_attribute}=", {}
         attribute = send(store_attribute)
-      end
-
-      # TODO: This is a migration. Please remove it when we move to json-preferences entirely
-      if attribute.empty?
-        old_attribute = send(self._old_preferences_attribute)
-
-        return nil if old_attribute.nil?
-
-        parsed_old_attribute = YAML::load(old_attribute)
-
-        parsed_old_attribute.each do |key, value|
-          attribute[key] = value
-        end
-
-        update_column(store_attribute, attribute)
       end
 
       attribute[key]

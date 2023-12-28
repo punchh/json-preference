@@ -5,10 +5,11 @@ require 'active_record'
 require 'yaml'
 require 'rspec'
 require 'shoulda'
-require "json-preference/version"
+require 'json-preference/version'
+require 'json-preference/serializer'
 require 'json-preference/preference_definition'
-require "json-preference/preferenzer"
-require "json-preference/has_preference_map"
+require 'json-preference/preferenzer'
+require 'json-preference/has_preference_map'
 
 FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures")
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
