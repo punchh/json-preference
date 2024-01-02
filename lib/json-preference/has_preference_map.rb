@@ -34,7 +34,7 @@ module JsonPreference
         serialize :preferences, JsonPreference::HashSerializer
 
         _preference_map.all_preference_definitions.each do |preference|
-          key = preference.name.to_s
+          key = preference.name
           define_method("#{key}=") do |value|
             write_preference_attribute(self.class._preferences_attribute, key, self.class.preference_definition(key).value(value))
           end
