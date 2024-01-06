@@ -31,7 +31,7 @@ module JsonPreference
       private
 
       def build_preference_definitions
-        serialize :preferences, JsonPreference::HashSerializer
+        serialize self._preferences_attribute, JsonPreference::HashSerializer
 
         _preference_map.all_preference_definitions.each do |preference|
           key = preference.name
@@ -59,22 +59,11 @@ module JsonPreference
 
     def read_preference_attribute(store_attribute, key)
       attribute = send(store_attribute)
-
-      if attribute.nil?
-        send :"#{store_attribute}=", {}
-        attribute = send(store_attribute)
-      end
-
       attribute[key]
     end
 
     def write_preference_attribute(store_attribute, key, value)
       attribute = send(store_attribute)
-
-      if attribute.nil?
-        send :"#{store_attribute}=", {}
-        attribute = send(store_attribute)
-      end
 
       if value != attribute[key]
         send :"#{store_attribute}_will_change!"
