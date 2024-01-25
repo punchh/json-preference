@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    json-preference (1.0.1)
+    json-preference (1.0.2)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
 
