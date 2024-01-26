@@ -4,7 +4,7 @@ module JsonPreference
 
     included do
       class_attribute :_preferences_attribute
-      self._preferences_attribute = :preferences
+      self._preferences_attribute = :json_preferences  # preserve :preferences used by the old version (yaml gem)
       class_attribute :_preference_map
       self._preference_map = JsonPreference::Preferenzer.new
     end
@@ -31,6 +31,7 @@ module JsonPreference
       private
 
       def build_preference_definitions
+        # declare the json_preferences attribute
         serialize self._preferences_attribute, JsonPreference::HashSerializer
 
         _preference_map.all_preference_definitions.each do |preference|
