@@ -1,5 +1,7 @@
 # JsonPreference
 
+This project is a folk of [serial_preference](https://github.com/punchh/serial_preference) and uses JSON type to store preferences for better performance.
+
 If you have a large number of settings/preferences on your model
 (like a company or a businesss) and you store each preference in
 a separate model or in separate columns on the model itself, it
