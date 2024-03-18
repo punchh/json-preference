@@ -5,8 +5,7 @@ module JsonPreference
     end
 
     def self.load(hash)
-      return if hash.nil?
-      hash.try(:with_indifferent_access)
+      (hash || {}).try(:with_indifferent_access)
     end
   end
 end
